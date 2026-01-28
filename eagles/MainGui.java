@@ -1,7 +1,6 @@
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.awt.image.BufferedImage;
 import java.util.Locale;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -17,13 +16,13 @@ public class MainGui {
     private final Team team;
     
     // Philadelphia Eagles Official Colors
-    private static final Color MIDNIGHT_GREEN = new Color(0, 76, 84);      // Primary
-    private static final Color SILVER = new Color(165, 172, 175);          // Secondary
-    private static final Color BLACK = new Color(0, 0, 0);                 // Accent
-    private static final Color WHITE = new Color(255, 255, 255);           // Text
-    private static final Color DARK_GREEN = new Color(0, 50, 56);          // Darker shade
-    private static final Color LIGHT_GREEN = new Color(0, 95, 106);        // Lighter shade
-    private static final Color CHARCOAL = new Color(32, 32, 32);           // Dark background
+    private static final Color MIDNIGHT_GREEN = new Color(0, 76, 84);
+    private static final Color SILVER = new Color(165, 172, 175);
+    private static final Color BLACK = new Color(0, 0, 0);
+    private static final Color WHITE = new Color(255, 255, 255);
+    private static final Color DARK_GREEN = new Color(0, 50, 56);
+    private static final Color LIGHT_GREEN = new Color(0, 95, 106);
+    private static final Color CHARCOAL = new Color(32, 32, 32);
 
     public MainGui(Team team) {
         this.team = team;
@@ -48,7 +47,7 @@ public class MainGui {
         ));
 
         // Title with larger font
-        JLabel title = new JLabel("🦅 " + team.getName());
+        JLabel title = new JLabel(team.getName());
         title.setFont(new Font("Arial", Font.BOLD, 28));
         title.setForeground(WHITE);
         top.add(title, BorderLayout.NORTH);
@@ -69,12 +68,12 @@ public class MainGui {
         meta.setBackground(DARK_GREEN);
         meta.setBorder(new EmptyBorder(8, 10, 8, 10));
         
-        JLabel coachLabel = new JLabel("🏈 Coach: " + team.getCoach());
+        JLabel coachLabel = new JLabel("Coach: " + team.getCoach());
         coachLabel.setForeground(WHITE);
         coachLabel.setFont(new Font("Arial", Font.BOLD, 13));
         meta.add(coachLabel);
         
-        JLabel stadiumLabel = new JLabel("🏟️ Stadium: " + team.getStadium());
+        JLabel stadiumLabel = new JLabel("Stadium: " + team.getStadium());
         stadiumLabel.setForeground(WHITE);
         stadiumLabel.setFont(new Font("Arial", Font.BOLD, 13));
         meta.add(stadiumLabel);
@@ -82,6 +81,41 @@ public class MainGui {
         top.add(meta, BorderLayout.SOUTH);
 
         root.add(top, BorderLayout.NORTH);
+
+        // Create tabbed pane for Players, Staff, and Statistics
+        JTabbedPane tabbedPane = new JTabbedPane();
+        tabbedPane.setBackground(CHARCOAL);
+        tabbedPane.setForeground(WHITE);
+        tabbedPane.setFont(new Font("Arial", Font.BOLD, 14));
+
+        // Players Tab
+        JPanel playersPanel = createPlayersPanel();
+        tabbedPane.addTab("PLAYERS", playersPanel);
+
+        // Staff Tab
+        JPanel staffPanel = createStaffPanel();
+        tabbedPane.addTab("STAFF", staffPanel);
+
+        // Statistics Tab
+        JPanel statsPanel = createStatsTabPanel();
+        tabbedPane.addTab("STATISTICS", statsPanel);
+
+        root.add(tabbedPane, BorderLayout.CENTER);
+
+        frame.setContentPane(root);
+        frame.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosed(WindowEvent e) {
+                System.exit(0);
+            }
+        });
+        
+        frame.setVisible(true);
+    }
+
+    private JPanel createPlayersPanel() {
+        JPanel mainPanel = new JPanel(new BorderLayout(10, 10));
+        mainPanel.setBackground(CHARCOAL);
 
         // Center: roster list and details
         JSplitPane split = new JSplitPane();
@@ -164,13 +198,8 @@ public class MainGui {
         split.setRightComponent(rightPanel);
         split.setDividerLocation(350);
 
-        root.add(split, BorderLayout.CENTER);
+        mainPanel.add(split, BorderLayout.CENTER);
 
-        // Bottom: search and stats
-        JPanel bottom = new JPanel(new BorderLayout(10, 10));
-        bottom.setBackground(CHARCOAL);
-        bottom.setBorder(new EmptyBorder(10, 0, 0, 0));
-        
         // Search panel
         JPanel searchPanel = new JPanel(new BorderLayout(10, 0));
         searchPanel.setBackground(MIDNIGHT_GREEN);
@@ -179,7 +208,7 @@ public class MainGui {
             new EmptyBorder(10, 15, 10, 15)
         ));
         
-        JLabel searchLabel = new JLabel("🔍 SEARCH ROSTER:");
+        JLabel searchLabel = new JLabel("SEARCH ROSTER:");
         searchLabel.setForeground(WHITE);
         searchLabel.setFont(new Font("Arial", Font.BOLD, 13));
         searchPanel.add(searchLabel, BorderLayout.WEST);
@@ -194,41 +223,7 @@ public class MainGui {
         ));
         searchPanel.add(search, BorderLayout.CENTER);
         
-        bottom.add(searchPanel, BorderLayout.NORTH);
-
-        // Stats panel
-        JPanel statsPanel = new JPanel(new BorderLayout());
-        statsPanel.setBackground(DARK_GREEN);
-        statsPanel.setBorder(BorderFactory.createCompoundBorder(
-            new LineBorder(MIDNIGHT_GREEN, 2),
-            new EmptyBorder(10, 15, 10, 15)
-        ));
-        
-        JLabel statsTitle = new JLabel("📊 TEAM STATISTICS");
-        statsTitle.setFont(new Font("Arial", Font.BOLD, 14));
-        statsTitle.setForeground(SILVER);
-        statsTitle.setBorder(new EmptyBorder(0, 0, 8, 0));
-        statsPanel.add(statsTitle, BorderLayout.NORTH);
-
-        JTextArea stats = new JTextArea();
-        stats.setEditable(false);
-        stats.setBackground(DARK_GREEN);
-        stats.setForeground(WHITE);
-        stats.setFont(new Font("Arial", Font.PLAIN, 13));
-        StringBuilder sb = new StringBuilder();
-        team.getStats().forEach((k, v) -> sb.append("  • ").append(k).append(": ").append(v).append("\n"));
-        stats.setText(sb.toString());
-        stats.setBorder(new EmptyBorder(5, 5, 5, 5));
-        
-        JScrollPane statsScroll = new JScrollPane(stats);
-        statsScroll.setBorder(null);
-        statsScroll.setPreferredSize(new Dimension(0, 100));
-        statsScroll.getViewport().setBackground(DARK_GREEN);
-        statsPanel.add(statsScroll, BorderLayout.CENTER);
-
-        bottom.add(statsPanel, BorderLayout.CENTER);
-
-        root.add(bottom, BorderLayout.SOUTH);
+        mainPanel.add(searchPanel, BorderLayout.SOUTH);
 
         // List selection -> details
         rosterList.addListSelectionListener(e -> {
@@ -260,18 +255,230 @@ public class MainGui {
             public void changedUpdate(DocumentEvent e) { filter(); }
         });
 
-        frame.setContentPane(root);
-        frame.addWindowListener(new WindowAdapter() {
-            @Override
-            public void windowClosed(WindowEvent e) {
-                System.exit(0);
-            }
-        });
+        return mainPanel;
+    }
+
+    private JPanel createStaffPanel() {
+        JPanel staffPanel = new JPanel(new BorderLayout(10, 10));
+        staffPanel.setBackground(CHARCOAL);
+        staffPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
+
+        JLabel staffTitle = new JLabel("TEAM STAFF & MANAGEMENT");
+        staffTitle.setFont(new Font("Arial", Font.BOLD, 20));
+        staffTitle.setForeground(SILVER);
+        staffTitle.setBorder(new EmptyBorder(10, 10, 20, 10));
+        staffPanel.add(staffTitle, BorderLayout.NORTH);
+
+        // Staff information panel
+        JPanel staffInfo = new JPanel();
+        staffInfo.setLayout(new BoxLayout(staffInfo, BoxLayout.Y_AXIS));
+        staffInfo.setBackground(DARK_GREEN);
+        staffInfo.setBorder(BorderFactory.createCompoundBorder(
+            new LineBorder(MIDNIGHT_GREEN, 2),
+            new EmptyBorder(20, 20, 20, 20)
+        ));
+
+        // Head Coach
+        addStaffMember(staffInfo, "HEAD COACH", team.getCoach(), 
+            "Leading the team since 2021. Responsible for game strategy, player development, and overall team performance.");
+
+        // Add spacing
+        staffInfo.add(Box.createVerticalStrut(20));
+
+        // General Manager
+        addStaffMember(staffInfo, "GENERAL MANAGER", "Howie Roseman",
+            "Executive Vice President and General Manager. Oversees all football operations, draft strategy, and player acquisitions.");
+
+        staffInfo.add(Box.createVerticalStrut(20));
+
+        // Offensive Coordinator
+        addStaffMember(staffInfo, "OFFENSIVE COORDINATOR", "Kellen Moore",
+            "Designs and calls offensive plays. Works with quarterbacks and coordinates the offensive game plan.");
+
+        staffInfo.add(Box.createVerticalStrut(20));
+
+        // Defensive Coordinator
+        addStaffMember(staffInfo, "DEFENSIVE COORDINATOR", "Vic Fangio",
+            "Manages defensive strategy and schemes. Coordinates with defensive position coaches.");
+
+        staffInfo.add(Box.createVerticalStrut(20));
+
+        // Owner
+        addStaffMember(staffInfo, "OWNER", "Jeffrey Lurie",
+            "Team owner since 1994. Oversees all business operations and maintains the team's championship culture.");
+
+        JScrollPane scrollPane = new JScrollPane(staffInfo);
+        scrollPane.setBorder(null);
+        scrollPane.getViewport().setBackground(DARK_GREEN);
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         
-        // Set custom icon color for title bar (if supported)
-        frame.setIconImage(createEaglesIcon());
+        staffPanel.add(scrollPane, BorderLayout.CENTER);
+
+        return staffPanel;
+    }
+
+    private void addStaffMember(JPanel panel, String title, String name, String description) {
+        JPanel memberPanel = new JPanel(new BorderLayout(10, 5));
+        memberPanel.setBackground(DARK_GREEN);
+        memberPanel.setBorder(new EmptyBorder(0, 0, 10, 0));
+
+        JLabel titleLabel = new JLabel(title);
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 14));
+        titleLabel.setForeground(SILVER);
+        memberPanel.add(titleLabel, BorderLayout.NORTH);
+
+        JLabel nameLabel = new JLabel(name);
+        nameLabel.setFont(new Font("Arial", Font.BOLD, 18));
+        nameLabel.setForeground(LIGHT_GREEN);
+        nameLabel.setBorder(new EmptyBorder(5, 0, 5, 0));
+
+        JTextArea descArea = new JTextArea(description);
+        descArea.setLineWrap(true);
+        descArea.setWrapStyleWord(true);
+        descArea.setEditable(false);
+        descArea.setBackground(DARK_GREEN);
+        descArea.setForeground(WHITE);
+        descArea.setFont(new Font("Arial", Font.PLAIN, 13));
+
+        JPanel infoPanel = new JPanel(new BorderLayout(5, 5));
+        infoPanel.setBackground(DARK_GREEN);
+        infoPanel.add(nameLabel, BorderLayout.NORTH);
+        infoPanel.add(descArea, BorderLayout.CENTER);
+
+        memberPanel.add(infoPanel, BorderLayout.CENTER);
+
+        // Separator line
+        JSeparator separator = new JSeparator();
+        separator.setForeground(MIDNIGHT_GREEN);
+        separator.setBackground(MIDNIGHT_GREEN);
+        memberPanel.add(separator, BorderLayout.SOUTH);
+
+        panel.add(memberPanel);
+    }
+
+    private JPanel createStatsTabPanel() {
+        JPanel statsTabPanel = new JPanel(new BorderLayout(10, 10));
+        statsTabPanel.setBackground(CHARCOAL);
+        statsTabPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
+
+        JLabel statsTitle = new JLabel("TEAM STATISTICS & ACHIEVEMENTS");
+        statsTitle.setFont(new Font("Arial", Font.BOLD, 20));
+        statsTitle.setForeground(SILVER);
+        statsTitle.setBorder(new EmptyBorder(10, 10, 20, 10));
+        statsTabPanel.add(statsTitle, BorderLayout.NORTH);
+
+        // Create a panel for all stats cards
+        JPanel statsCardsPanel = new JPanel();
+        statsCardsPanel.setLayout(new BoxLayout(statsCardsPanel, BoxLayout.Y_AXIS));
+        statsCardsPanel.setBackground(CHARCOAL);
+
+        // Overall Record Card
+        JPanel recordCard = createStatCard("OVERALL RECORD", 
+            String.format("Wins: %s | Draws: %s | Losses: %s", 
+                team.getStat("Wins"), 
+                team.getStat("Draws"), 
+                team.getStat("Losses")));
+        statsCardsPanel.add(recordCard);
+        statsCardsPanel.add(Box.createVerticalStrut(15));
+
+        // Championships Card
+        JPanel championshipCard = createStatCard("CHAMPIONSHIPS", 
+            String.format("NFL Championships: %s", team.getStat("NFL Championships")));
+        statsCardsPanel.add(championshipCard);
+        statsCardsPanel.add(Box.createVerticalStrut(15));
+
+        // Win Percentage Card
+        int wins = (Integer) team.getStat("Wins");
+        int draws = (Integer) team.getStat("Draws");
+        int losses = (Integer) team.getStat("Losses");
+        int totalGames = wins + draws + losses;
+        double winPct = (wins / (double) totalGames) * 100;
         
-        frame.setVisible(true);
+        JPanel winPctCard = createStatCard("WIN PERCENTAGE", 
+            String.format("%.1f%% (%d total games)", winPct, totalGames));
+        statsCardsPanel.add(winPctCard);
+        statsCardsPanel.add(Box.createVerticalStrut(15));
+
+        // Roster Size Card
+        JPanel rosterCard = createStatCard("ROSTER SIZE", 
+            String.format("%d Players", team.listPlayers().size()));
+        statsCardsPanel.add(rosterCard);
+        statsCardsPanel.add(Box.createVerticalStrut(15));
+
+        // Stadium Info Card
+        JPanel stadiumCard = createStatCard("HOME STADIUM", 
+            String.format("%s - %s", team.getStadium(), "Philadelphia, PA"));
+        statsCardsPanel.add(stadiumCard);
+
+        JScrollPane scrollPane = new JScrollPane(statsCardsPanel);
+        scrollPane.setBorder(null);
+        scrollPane.getViewport().setBackground(CHARCOAL);
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        
+        statsTabPanel.add(scrollPane, BorderLayout.CENTER);
+
+        return statsTabPanel;
+    }
+
+    private JPanel createStatCard(String title, String value) {
+        JPanel card = new JPanel(new BorderLayout(10, 10));
+        card.setBackground(DARK_GREEN);
+        card.setBorder(BorderFactory.createCompoundBorder(
+            new LineBorder(MIDNIGHT_GREEN, 3),
+            new EmptyBorder(20, 20, 20, 20)
+        ));
+        card.setMaximumSize(new Dimension(Integer.MAX_VALUE, 120));
+
+        JLabel titleLabel = new JLabel(title);
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 16));
+        titleLabel.setForeground(SILVER);
+        card.add(titleLabel, BorderLayout.NORTH);
+
+        JLabel valueLabel = new JLabel(value);
+        valueLabel.setFont(new Font("Arial", Font.BOLD, 24));
+        valueLabel.setForeground(LIGHT_GREEN);
+        card.add(valueLabel, BorderLayout.CENTER);
+
+        return card;
+    }
+
+    private JPanel createStatsPanel() {
+        JPanel bottom = new JPanel(new BorderLayout(10, 10));
+        bottom.setBackground(CHARCOAL);
+        bottom.setBorder(new EmptyBorder(10, 0, 0, 0));
+
+        // Stats panel
+        JPanel statsPanel = new JPanel(new BorderLayout());
+        statsPanel.setBackground(DARK_GREEN);
+        statsPanel.setBorder(BorderFactory.createCompoundBorder(
+            new LineBorder(MIDNIGHT_GREEN, 2),
+            new EmptyBorder(10, 15, 10, 15)
+        ));
+        
+        JLabel statsTitle = new JLabel("TEAM STATISTICS");
+        statsTitle.setFont(new Font("Arial", Font.BOLD, 14));
+        statsTitle.setForeground(SILVER);
+        statsTitle.setBorder(new EmptyBorder(0, 0, 8, 0));
+        statsPanel.add(statsTitle, BorderLayout.NORTH);
+
+        JTextArea stats = new JTextArea();
+        stats.setEditable(false);
+        stats.setBackground(DARK_GREEN);
+        stats.setForeground(WHITE);
+        stats.setFont(new Font("Arial", Font.PLAIN, 13));
+        StringBuilder sb = new StringBuilder();
+        team.getStats().forEach((k, v) -> sb.append("  ").append(k).append(": ").append(v).append("\n"));
+        stats.setText(sb.toString());
+        stats.setBorder(new EmptyBorder(5, 5, 5, 5));
+        
+        JScrollPane statsScroll = new JScrollPane(stats);
+        statsScroll.setBorder(null);
+        statsScroll.setPreferredSize(new Dimension(0, 100));
+        statsScroll.getViewport().setBackground(DARK_GREEN);
+        statsPanel.add(statsScroll, BorderLayout.CENTER);
+
+        bottom.add(statsPanel, BorderLayout.CENTER);
+        return bottom;
     }
 
     private String dumpPlayer(Player p) {
@@ -285,26 +492,6 @@ public class MainGui {
         sb.append("  College:    ").append(p.getNationality()).append('\n');
         sb.append("\n═══════════════════════════════════════\n");
         return sb.toString();
-    }
-    
-    private Image createEaglesIcon() {
-        // Create a simple Eagles-colored icon
-        int size = 64;
-        Image img = new BufferedImage(size, size, BufferedImage.TYPE_INT_ARGB);
-        Graphics2D g2d = (Graphics2D) img.getGraphics();
-        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        
-        // Draw circle background
-        g2d.setColor(MIDNIGHT_GREEN);
-        g2d.fillOval(0, 0, size, size);
-        
-        // Draw border
-        g2d.setColor(SILVER);
-        g2d.setStroke(new BasicStroke(3));
-        g2d.drawOval(2, 2, size - 4, size - 4);
-        
-        g2d.dispose();
-        return img;
     }
 
     public static void main(String[] args) {
